@@ -41,5 +41,10 @@ public class Constants {
 		new PowerModelSpecPowerHpProLiantMl110G4Xeon3040(),
 		new PowerModelSpecPowerHpProLiantMl110G5Xeon3075()
 	};
+        
+        
+        
+        ///My Constants
+        public final static int AFFINITY_ID_BY_NODE_NUMBERS=100;
 
 }

@@ -4,9 +4,11 @@
  */
 package fr.unice.vicc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
@@ -15,25 +17,28 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
  *
  * @author Malou
  */
-public class MyNaivePolicy extends VmAllocationPolicy{
+public class MyAntiAffinityPolicy extends VmAllocationPolicy{
     private Map<String, Host> vmTable;
-    public MyNaivePolicy(List<? extends Host> list) {
+    public MyAntiAffinityPolicy(List<? extends Host> list) {
         super(list);
         vmTable=new HashMap<>();
+        
     }
 
     @Override
     public boolean allocateHostForVm(Vm vm) {
         
-        for(Host host:getHostList()){
-            if(vm.getMips()<host.getAvailableMips()){
-                if(host.vmCreate(vm)){
+        int hostTotal = getHostList().size();
+        int id = vm.getId();
+       int index = id%100;
+        int alt=hostTotal/100;
+        for(int i=0;i<alt;i++){
+             Host host = getHostList().get(index +100*i);
+            if(host.vmCreate(vm)){
                 vmTable.put(vm.getUid(), host);
                 return true;
             }
-            }
-            
-        }
+       }
         return false;
     }
 
@@ -50,6 +55,7 @@ public class MyNaivePolicy extends VmAllocationPolicy{
     public List<Map<String, Object>> optimizeAllocation(List<? extends Vm> list) {
         return null;
     }
+    
 
     @Override
     public void deallocateHostForVm(Vm vm) {
@@ -58,7 +64,7 @@ public class MyNaivePolicy extends VmAllocationPolicy{
 
     @Override
     public Host getHost(Vm vm) {
-        return this.vmTable.get(vm.getUid());
+        return vmTable.get(vm.getUid());
     }
 
     @Override

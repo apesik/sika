@@ -52,6 +52,7 @@ public class Main {
 
         //The scheduling algorithm
         VmAllocationPolicy policy = policies.make(impl, hosts);
+        
 
         //the datacenter
         PowerDatacenter datacenter =  Helper.createDatacenter("Datacenter",hosts,policy);
@@ -61,6 +62,8 @@ public class Main {
 
         //Here you can insert your observers
         PeakPowerObserver peakPowerObserver = new PeakPowerObserver(hosts);
+        MyAntiAffinityObserver myObserverTwoObserver = new MyAntiAffinityObserver(hosts);
+        MyLoadBalanceObserver myLoadBalanceObserver=new MyLoadBalanceObserver(hosts);
         observers.build();
 
         double x = CloudSim.startSimulation();
@@ -70,7 +73,7 @@ public class Main {
 
         CloudSim.stopSimulation();
         Log.printLine("Finished");
-        return new Revenue(peakPowerObserver, datacenter);
+        return new Revenue(peakPowerObserver,datacenter);
     }
 
     public static void main(String [] args) {

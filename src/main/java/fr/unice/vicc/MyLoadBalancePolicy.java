@@ -4,6 +4,9 @@
  */
 package fr.unice.vicc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,35 +18,42 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
  *
  * @author Malou
  */
-public class MyNaivePolicy extends VmAllocationPolicy{
+public class MyLoadBalancePolicy extends VmAllocationPolicy {
+
     private Map<String, Host> vmTable;
-    public MyNaivePolicy(List<? extends Host> list) {
+    private List<Vm> vms = new ArrayList<>();
+
+    public MyLoadBalancePolicy(List<? extends Host> list) {
         super(list);
-        vmTable=new HashMap<>();
+        vmTable = new HashMap<>();
+
     }
 
     @Override
     public boolean allocateHostForVm(Vm vm) {
-        
-        for(Host host:getHostList()){
-            if(vm.getMips()<host.getAvailableMips()){
-                if(host.vmCreate(vm)){
-                vmTable.put(vm.getUid(), host);
-                return true;
-            }
-            }
-            
-        }
-        return false;
-    }
+       List<Host> hostList = getHostList();
+        int i=0;
+       Collections.sort(hostList, new HostMipsComparator());
 
-    @Override
-    public boolean allocateHostForVm(Vm vm, Host host) {
+        for(Host host:hostList){
             if(host.vmCreate(vm)){
                 vmTable.put(vm.getUid(), host);
                 return true;
             }
-            return false;
+            i++;
+        }
+        return false;
+
+    }
+
+
+    @Override
+    public boolean allocateHostForVm(Vm vm, Host host) {
+        if (host.vmCreate(vm)) {
+            vmTable.put(vm.getUid(), host);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -58,12 +68,22 @@ public class MyNaivePolicy extends VmAllocationPolicy{
 
     @Override
     public Host getHost(Vm vm) {
-        return this.vmTable.get(vm.getUid());
+        return vmTable.get(vm.getUid());
     }
 
     @Override
     public Host getHost(int i, int i1) {
         return vmTable.get(Vm.getUid(i1, i));
     }
-    
+
+    public class HostMipsComparator implements Comparator<Host> {
+
+        @Override
+        public int compare(Host o1, Host o2) {
+            Double d1 = new Double(o1.getAvailableMips());
+            Double d2 = new Double(o2.getAvailableMips());
+            return d2.compareTo(d1);
+        }
+    }
+
 }
