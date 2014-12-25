@@ -26,12 +26,12 @@ public class MyNaivePolicy extends VmAllocationPolicy{
     public boolean allocateHostForVm(Vm vm) {
         
         for(Host host:getHostList()){
-            if(vm.getMips()<host.getAvailableMips()){
+            
                 if(host.vmCreate(vm)){
                 vmTable.put(vm.getUid(), host);
                 return true;
             }
-            }
+            
             
         }
         return false;
